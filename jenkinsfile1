@@ -12,26 +12,26 @@ pipeline {
 
         stage('Run Ansible Playbook on Remote Server') {
             environment {
-                SUDO_PASS = credentials('ansible-sudo-password') // Jenkins Secret Text
+                SUDO_PASS = credentials('ansible-sudo-password')  // Jenkins Secret Text ID
             }
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
-                    // Use single quotes for the outer shell, but expand variable securely inside SSH session
-                    sh '''#!/bin/bash
-                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<'REMOTE'
-if [ ! -d "/home/ansible/ansible-repo" ]; then
-    echo "Cloning Ansible repository..."
-    git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
-else
-    echo "Updating existing repository..."
-    cd /home/ansible/ansible-repo
-    git pull
-fi
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<'EOF'
+                            set -e
+                            if [ ! -d "/home/ansible/ansible-repo" ]; then
+                                echo "Cloning Ansible repository..."
+                                git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
+                            else
+                                echo "Updating existing repository..."
+                                cd /home/ansible/ansible-repo
+                                git pull
+                            fi
 
-cd /home/ansible/ansible-repo
-echo "Running Ansible playbook..."
-ANSIBLE_BECOME_PASS="${SUDO_PASS}" ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=$SUDO_PASS"
-REMOTE
+                            cd /home/ansible/ansible-repo
+                            echo "Running Ansible playbook..."
+                            ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=$SUDO_PASS"
+                        EOF
                     '''
                 }
             }
