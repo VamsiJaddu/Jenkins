@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Ansible Repo') {
+            steps {
+                // Clone the repo containing nginx.yml
+                git branch: 'main', url: 'https://github.com/VamsiJaddu/Ansible.git'
+            }
+        }
+
+        stage('Run Playbook on Ansible Server') {
+            steps {
+                sshagent(credentials: ['jenkins-ansible']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 << 'EOF'
+                        cd /home/ansible/ansible-repo
+                        ansible-playbook nginx.yml
+                    EOF
+                    '''
+                }
+            }
+        }
+    }
+}
