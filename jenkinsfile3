@@ -27,9 +27,9 @@ pipeline {
                                 cd /home/ansible/ansible-repo
                                 git pull
                             fi
-                        EOF
-                    '''
-                }
+                            EOF
+                               '''
+                            }
             }
         }
 
