@@ -1,7 +1,19 @@
+#here the code is directly clone into ansible server and keep it updated.
+
+
 pipeline {
     agent any
 
     stages {
+
+        stage('Checkout Jenkins Repo') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/VamsiJaddu/Jenkins.git',
+                    credentialsId: 'github-credentials'
+            }
+        }
+
         stage('Run Ansible Playbook on Remote Server') {
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
