@@ -1,6 +1,3 @@
-//here the code is directly clone into ansible server and keep it updated.
-
-
 pipeline {
     agent any
 
@@ -19,23 +16,22 @@ pipeline {
             }
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
-                    sh '''
-                    # Run SSH and expand SUDO_PASS properly
-                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 << EOF
-                        if [ ! -d "/home/ansible/ansible-repo" ]; then
-                            echo "Cloning Ansible repository..."
-                            git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
-                        else
-                            echo "Updating existing repository..."
-                            cd /home/ansible/ansible-repo
-                            git pull
-                        fi
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
+                            if [ ! -d "/home/ansible/ansible-repo" ]; then
+                                echo "Cloning Ansible repository..."
+                                git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
+                            else
+                                echo "Updating existing repository..."
+                                cd /home/ansible/ansible-repo
+                                git pull
+                            fi
 
-                        cd /home/ansible/ansible-repo
-                        echo "Running Ansible playbook..."
-                        ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=${SUDO_PASS}"
-                    EOF
-                    '''
+                            cd /home/ansible/ansible-repo
+                            echo "Running Ansible playbook..."
+                            ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=${SUDO_PASS}"
+                        EOF
+                    """
                 }
             }
         }
