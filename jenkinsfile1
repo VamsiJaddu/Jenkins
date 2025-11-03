@@ -12,26 +12,27 @@ pipeline {
 
         stage('Run Ansible Playbook on Remote Server') {
             environment {
-                SUDO_PASS = credentials('ansible-sudo-password') // Jenkins secret text ID
+                SUDO_PASS = credentials('ansible-sudo-password') // Jenkins Secret Text
             }
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
-                            if [ ! -d "/home/ansible/ansible-repo" ]; then
-                                echo "Cloning Ansible repository..."
-                                git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
-                            else
-                                echo "Updating existing repository..."
-                                cd /home/ansible/ansible-repo
-                                git pull
-                            fi
+                    // Use single quotes for the outer shell, but expand variable securely inside SSH session
+                    sh '''#!/bin/bash
+                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<'REMOTE'
+if [ ! -d "/home/ansible/ansible-repo" ]; then
+    echo "Cloning Ansible repository..."
+    git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
+else
+    echo "Updating existing repository..."
+    cd /home/ansible/ansible-repo
+    git pull
+fi
 
-                            cd /home/ansible/ansible-repo
-                            echo "Running Ansible playbook..."
-                            ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=${SUDO_PASS}"
-                        EOF
-                    """
+cd /home/ansible/ansible-repo
+echo "Running Ansible playbook..."
+ANSIBLE_BECOME_PASS="${SUDO_PASS}" ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=$SUDO_PASS"
+REMOTE
+                    '''
                 }
             }
         }
