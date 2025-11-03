@@ -8,6 +8,7 @@ pipeline {
 
         stage('Checkout Jenkins Repo') {
             steps {
+            
                 git branch: 'main',
                     url: 'https://github.com/VamsiJaddu/Jenkins.git',
                     credentialsId: 'jenkins-github'
@@ -18,7 +19,8 @@ pipeline {
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
                     sh '''
-                    ssh -T -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
+                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
+
                         # Create repo folder if not exists
                         if [ ! -d "/home/ansible/ansible-repo" ]; then
                             echo "Cloning Ansible repository..."
