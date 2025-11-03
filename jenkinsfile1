@@ -31,8 +31,8 @@ pipeline {
                             cd /home/ansible/ansible-repo
                             echo "Running Ansible playbook..."
                             ansible-playbook -i /home/ansible/inventory.ini nginx.yml --extra-vars "ansible_become_pass=$SUDO_PASS"
-                        EOF
-                    '''
+                    EOF
+                        '''
                 }
 
             }
