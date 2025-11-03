@@ -21,7 +21,7 @@ pipeline {
                 sshagent(credentials: ['jenkins-ansible']) {
                     sh '''
                     # Run SSH and expand SUDO_PASS properly
-                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
+                    ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 << EOF
                         if [ ! -d "/home/ansible/ansible-repo" ]; then
                             echo "Cloning Ansible repository..."
                             git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
