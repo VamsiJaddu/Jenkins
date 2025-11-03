@@ -32,7 +32,7 @@ pipeline {
                         # Move to repo and run playbook
                         cd /home/ansible/ansible-repo
                         echo "Running Ansible playbook..."
-                        ansible-playbook -i inventory.ini nginx.yml
+                        ansible-playbook -i /home/ansible/inventory.ini nginx.yml
                     EOF
                     '''
                 }
