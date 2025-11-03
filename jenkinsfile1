@@ -16,6 +16,9 @@ pipeline {
         }
 
         stage('Run Ansible Playbook on Remote Server') {
+             environment {
+                SUDO_PASS = credentials('ansible-sudo-password')
+            }
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
                     sh '''
