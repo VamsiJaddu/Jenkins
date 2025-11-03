@@ -5,10 +5,8 @@ pipeline {
     agent any
 
     stages {
-
         stage('Checkout Jenkins Repo') {
             steps {
-            
                 git branch: 'main',
                     url: 'https://github.com/VamsiJaddu/Jenkins.git',
                     credentialsId: 'jenkins-github'
@@ -16,15 +14,14 @@ pipeline {
         }
 
         stage('Run Ansible Playbook on Remote Server') {
-             environment {
-                SUDO_PASS = credentials('ansible-sudo-password')
+            environment {
+                SUDO_PASS = credentials('ansible-sudo-pass') // Jenkins secret text ID
             }
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
                     sh '''
+                    # Run SSH and expand SUDO_PASS properly
                     ssh -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
-
-                        # Create repo folder if not exists
                         if [ ! -d "/home/ansible/ansible-repo" ]; then
                             echo "Cloning Ansible repository..."
                             git clone https://github.com/VamsiJaddu/Ansible.git /home/ansible/ansible-repo
@@ -34,10 +31,9 @@ pipeline {
                             git pull
                         fi
 
-                        # Move to repo and run playbook
                         cd /home/ansible/ansible-repo
                         echo "Running Ansible playbook..."
-                        ansible-playbook -i /home/ansible/inventory.ini nginx.yml
+                        ansible-playbook nginx.yml --extra-vars "ansible_become_pass=${SUDO_PASS}"
                     EOF
                     '''
                 }
