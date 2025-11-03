@@ -18,7 +18,7 @@ pipeline {
             steps {
                 sshagent(credentials: ['jenkins-ansible']) {
                     sh '''
-                    ssh -T -o StrictHostKeyChecking=no ansible@172.31.1.11 <<'EOF'
+                    ssh -T -o StrictHostKeyChecking=no ansible@172.31.1.11 <<EOF
                         # Create repo folder if not exists
                         if [ ! -d "/home/ansible/ansible-repo" ]; then
                             echo "Cloning Ansible repository..."
